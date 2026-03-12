@@ -14,7 +14,9 @@ def get_llama_parse() -> LlamaParse:
 	)
 
 def get_llm() -> GenAIClient:
-	return GenAIClient(api_key=os.getenv("GOOGLE_API_KEY"))
+	# google.genai.Client will look in GEMINI_API_KEY or GOOGLE_API_KEY
+	# if no key is explictly speficied here.
+	return GenAIClient()
 
 def get_prompt_template() -> Template:
 	return Template(
