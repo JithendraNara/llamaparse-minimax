@@ -9,7 +9,7 @@ def get_llama_parse() -> LlamaParse:
 	return LlamaParse(
 	    api_key=os.getenv("LLAMA_CLOUD_API_KEY"), # type: ignore
 	    parse_mode="parse_page_with_agent",
-	    model="gemini-3.0-pro",
+	    model="gemini-3.1-pro",
 	    result_type=ResultType.MD,
 	)
 
