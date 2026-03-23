@@ -1,14 +1,8 @@
-# Python-generated files
-__pycache__/
-*.py[oc]
-build/
-dist/
-wheels/
-*.egg-info
-
-# Virtual environments
-.venv
-
-# data
-*.pdf
+.pdf_pages/
+pages/
+tables/
+brokerage_statement.pdf
 *.csv
+__pycache__/
+*.pyc
+pipeline_output.json
