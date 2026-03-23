@@ -2,70 +2,47 @@
 
 Fork of [run-llama/llamaparse-gemini-demo](https://github.com/run-llama/llamaparse-gemini-demo) — **fully replaced Gemini with MiniMax**.
 
-## Two Pipelines Included
+## Single Pipeline: `run-workflow`
 
-### 1. `pipeline.py` — MiniMax-Only (Zero External Dependencies)
-
-Pure MiniMax pipeline: converts PDF pages to images, uses MiniMax VLM for extraction, MiniMax chat for summary. Only needs `MINIMAX_API_KEY`.
+Uses **LlamaCloud** for PDF parsing + **MiniMax M2.7** for final summary.
 
 ```bash
-# Requires: pdftoppm (usually pre-installed on Linux, brew install poppler on Mac)
-pip install httpx jinja2
+# Setup
+pip install llama-cloud-services llama-index-workflows pandas httpx tabulate
+source venv/bin/activate
 
 # Run
-MINIMAX_API_KEY=your_key python -m src.llamaparse_gemini.pipeline your_doc.pdf
+export LLAMA_CLOUD_API_KEY=your_key
+export MINIMAX_API_KEY=your_key
+python -m src.llamaparse_gemini.main your_doc.pdf
 
-# Options
---dpi 150          # Lower DPI = faster, smaller images (default: 200)
---dpi 300          # Higher DPI = slower, better quality
---concurrency 10   # Limit concurrent API calls (default: unlimited)
---no-summary       # Skip final summarization (just extract)
---output text      # Output: text (default), json, or both
+# Or via run.py (same thing)
+python run.py your_doc.pdf
 ```
 
-**Performance on 28-page PDF:**
-- ~120s total (extract + summarize)
-- ~58k extracted characters
-- ~54 tables found
+## Performance
 
-### 2. `run-workflow` — LlamaCloud + MiniMax
-
-Uses LlamaCloud's parsing service (default LLM mode, no hardcoded Gemini) + MiniMax for final summary. Needs `LLAMA_CLOUD_API_KEY` + `MINIMAX_API_KEY`.
-
-```bash
-pip install llama-cloud-services llama-index-workflows pandas httpx
-MINIMAX_API_KEY=... LLAMA_CLOUD_API_KEY=... uv pip install -e .
-run-workflow your_doc.pdf
-```
-
-## Architecture Comparison
-
-| | pipeline.py | run-workflow |
-|---|---|---|
-| Parsing | pdftoppm → MiniMax VLM | LlamaCloud `parse_page_with_llm` |
-| Tables | Markdown extraction | LlamaCloud structured CSV |
-| Summary | MiniMax M2.7 chat | MiniMax M2.7 chat |
-| API keys | `MINIMAX_API_KEY` only | `LLAMA_CLOUD_API_KEY` + `MINIMAX_API_KEY` |
-| Speed | ~120s (28 pages) | ~30s |
-| Extracted chars | ~58k | ~83k |
-| Tables found | 54 | 25 |
-
-## Quality Notes
-
-- LlamaCloud's agentic parsing (`parse_page_with_agent` + Gemini) extracts ~109k chars — roughly 2x MiniMax VLM
-- For most use cases, `pipeline.py` quality is sufficient
-- For complex financial documents with dense tables, LlamaCloud parsing produces more complete output
-
-## Setup
-
-```bash
-git clone https://github.com/JithendraNara/llamaparse-minimax.git
-cd llamaparse-minimax
-python3.13 -m venv venv && source venv/bin/activate
-pip install httpx jinja2 pandas
-```
+| Metric | Value |
+|--------|-------|
+| **Speed** | ~30-35s for 28-page doc |
+| **Extracted** | ~83k chars |
+| **Tables** | 25 (CSV) |
+| **Summary** | ~5-8k chars |
 
 ## API Keys
 
-- **MiniMax API Key** — [platform.minimax.io](https://platform.minimax.io/subscribe/token-plan)
-- **LlamaCloud API Key** (workflow only) — [console.llamacloud.ai](https://console.llamacloud.ai)
+- **LlamaCloud** — console.llamacloud.ai (free tier: 1,000 pages/month)
+- **MiniMax** — platform.minimax.io/subscribe/token-plan
+
+## Old Pipeline (DEPRECATED)
+
+`pipeline.py` (MiniMax VLM + pdftoppm image conversion) is deprecated.
+It has been replaced by run-workflow which is faster and extracts more content.
+
+## Architecture
+
+```
+PDF → LlamaCloud parse_page_with_llm → Markdown text + CSV tables
+                                                  ↓
+                              MiniMax M2.7 chat completion → plain-English summary
+```

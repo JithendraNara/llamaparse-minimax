@@ -1,10 +1,11 @@
 """
-Optimized MiniMax-native PDF parsing pipeline.
+DEPRECATED — Use run-workflow (run.py) instead.
 
-Uses MiniMax VLM (vision) to extract text and tables from each page,
-then MiniMax chat completion for final summarization.
+This pipeline used MiniMax VLM for OCR (via pdftoppm image conversion).
+It has been replaced by run-workflow which uses LlamaCloud + MiniMax
+for faster, more complete extraction with no PDF-to-image conversion step.
 
-Fully replaces Gemini with MiniMax. No external parsing services needed.
+Kept for reference only. Will be removed in a future version.
 """
 import os
 import base64

@@ -6,3 +6,8 @@ brokerage_statement.pdf
 __pycache__/
 *.pyc
 pipeline_output.json
+venv/
+.venv/
+*.egg-info/
+build/
+dist/
